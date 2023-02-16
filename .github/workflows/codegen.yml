@@ -34,9 +34,9 @@ jobs:
         add: 'emoji_gen.go'
         committer_name: GitHub Actions
         committer_email: actions@github.com
-        tag: ${{ steps.tag.outputs.version }}
+        tag: v${{ steps.tag.outputs.version }}
     - name: Release
       uses: softprops/action-gh-release@v1
-      if: steps.commit.outputs.tag_pushed == true
+      if: steps.commit.outputs.tag_pushed
       with:
-        tag_name: ${{ steps.tag.outputs.version }}
+        tag_name: v${{ steps.tag.outputs.version }}
