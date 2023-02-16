@@ -4,6 +4,8 @@ on:
   schedule:
     - cron: '0 0 1 * *' # Run once per month
   workflow_dispatch: {}
+permissions:
+  contents: write
 jobs:
   monthly:
     name: Update Emoji data monthly
