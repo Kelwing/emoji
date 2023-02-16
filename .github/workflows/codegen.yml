@@ -1,0 +1,36 @@
+name: Generate Emoji Code
+run-name: Generating Golang emoji lookup tables
+on:
+  schedule:
+    - cron: '0 0 1 * *' # Run once per month
+  workflow_dispatch: {}
+jobs:
+  monthly:
+    name: Update Emoji data monthly
+    runs-on: ubuntu-latest
+    steps:
+    - name: 'Checkout Code'
+      uses: actions/checkout@v3
+    - name: Build and Run Codegen
+      run: |
+        go install ./emoji_codegen
+        go generate ./...
+    - name: Auto Increment Semver Action
+      uses: MCKanpolat/auto-semver-action@1.0.5
+      id: tag
+      with:
+        releaseType: patch
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: EndBug/add-and-commit@v9
+      id: commit
+      with:
+        message: "monthly: update emoji data"
+        add: 'emoji_gen.go'
+        committer_name: GitHub Actions
+        committer_email: actions@github.com
+        tag: ${{ steps.tag.outputs.version }}
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: steps.commit.outputs.tag_pushed == true
+      with:
+        tag_name: ${{ steps.tag.outputs.version }}
