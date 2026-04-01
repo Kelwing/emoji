@@ -12,22 +12,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 'Checkout Code'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v6
     - name: 'Setup Go'
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v6
       with:
-        go-version: '^1.20.0'
+          go-version-file: 'go.mod'
     - name: Build and Run Codegen
       run: |
         go install ./emoji_codegen
         go generate ./...
-    - name: Auto Increment Semver Action
-      uses: MCKanpolat/auto-semver-action@1.0.5
+    - name: Set version
       id: tag
-      with:
-        releaseType: patch
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-    - uses: EndBug/add-and-commit@v9
+      run: echo "version=$(date +'%Y.%-m')" >> $GITHUB_OUTPUT
+    - uses: EndBug/add-and-commit@v10
       id: commit
       with:
         message: "monthly: update emoji data"
@@ -36,7 +33,7 @@ jobs:
         committer_email: actions@github.com
         tag: v${{ steps.tag.outputs.version }}
     - name: Release
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       if: steps.commit.outputs.tag_pushed
       with:
         tag_name: v${{ steps.tag.outputs.version }}
